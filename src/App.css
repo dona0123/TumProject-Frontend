@@ -28,6 +28,28 @@
   color: #61dafb;
 }
 
+.center-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-size: 30px; 
+  font-weight: bold;
+  margin-top: 20px; 
+}
+
+.hr-line {
+  width: 80%; /* 수평선이 전체 너비를 차지하도록 설정 */
+  border: none; /* 기본 테두리를 제거합니다. */
+  border-top: 1px solid black; /* 수평선의 스타일을 설정합니다. */
+  margin-bottom: 20px; /* 제목 아래 여백을 추가합니다. */
+}
+
+
+
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
