@@ -4,6 +4,7 @@ import { Container, Table, TableHead, TableBody, TableRow, TableCell, Paper } fr
 import AddShop from "./AddShop";
 import SearchShop from "./SearchShop";
 import { call } from "./ApiService";
+import EditShop from "./EditShop";
 
 function App() {
   // 제품 리스트를 저장할 상태 변수
@@ -71,6 +72,7 @@ function App() {
         </Paper>
         <AddShop addItem={addItem} /> {/* 추가 폼 */}
         <SearchShop /> {/* 검색 폼 */}
+        <EditShop /> {/* 수정 폼 */}
       </Container>
     </div>
   );
