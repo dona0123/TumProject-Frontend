@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { Button, Grid, TextField, Typography } from "@mui/material";
 
 const EditShop = ({ setProducts }) => {
-  const [item, setItem] = useState({ title: "", userId: "", ingredient: "", crisp: "" });
+  const [item, setItem] = useState({
+    title: "",
+    userId: "",
+    ingredient: "",
+    crisp: "",
+  });
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
@@ -12,55 +17,59 @@ const EditShop = ({ setProducts }) => {
   const onSearchButtonClick = () => {
     // 검색어가 비어있는지 확인
     if (!item.title) {
-      alert('검색어를 입력하세요.');
+      alert("검색어를 입력하세요.");
       console.error("검색어를 입력하세요.");
       return;
     }
-  
+
     // 검색 요청 보내기
-    fetch('http://localhost:8080/shop/search', {
-      method: 'POST',
+    fetch("http://localhost:8080/shop/search", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: item.title })
+      body: JSON.stringify({ title: item.title }),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.data && data.data.length > 0) {
-        const product = data.data[0];
-        setItem(product);
-      } else {
-        alert('검색된 제품이 없습니다.');
-        setItem({ title: "", userId: "", ingredient: "", crisp: "" });
-      }
-    })
-    .catch(error => {
-      console.error('Error searching products:', error);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.data && data.data.length > 0) {
+          const product = data.data[0];
+          setItem(product);
+        } else {
+          alert("검색된 제품이 없습니다.");
+          setItem({ title: "", userId: "", ingredient: "", crisp: "" });
+        }
+      })
+      .catch((error) => {
+        console.error("Error searching products:", error);
+      });
   };
 
   const onEditButtonClick = () => {
     // 수정 요청 보내기
-    fetch('http://localhost:8080/shop', {
-      method: 'PUT', 
+    fetch("http://localhost:8080/shop", {
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: item.title, userId: item.userId, ingredient: item.ingredient, crisp: item.crisp, id:item.id }) // 필드 이름을 일치시킴
+      body: JSON.stringify({
+        title: item.title,
+        userId: item.userId,
+        ingredient: item.ingredient,
+        crisp: item.crisp,
+        id: item.id,
+      }), // 필드 이름을 일치시킴
     })
-    .then(response => response.json())
-    .then(data => {
-      // 여기서는 예시로만 처리; 실제 응답 데이터에 따라 조정 필요
-      alert('제품이 수정되었습니다.');
-    })
-    .catch(error => {
-      console.error('Error updating product:', error);
-    });
+      .then((response) => response.json())
+      .then((data) => {
+        // 여기서는 예시로만 처리; 실제 응답 데이터에 따라 조정 필요
+        alert("제품이 수정되었습니다.");
+      })
+      .catch((error) => {
+        console.error("Error updating product:", error);
+      });
   };
 
-
-  
   return (
     <div>
       <Grid container spacing={2} alignItems="center" style={{ marginTop: 20 }}>
@@ -109,7 +118,9 @@ const EditShop = ({ setProducts }) => {
             value={item.crisp ? "Yes" : "No"}
           />
         </Grid>
-        <Grid item xs={12} container spacing={2}> {/* 버튼들을 감싸는 Grid 컨테이너에 spacing 속성 추가 */}
+        <Grid item xs={12} container spacing={2}>
+          {" "}
+          {/* 버튼들을 감싸는 Grid 컨테이너에 spacing 속성 추가 */}
           <Grid item xs={12}>
             <Button
               fullWidth

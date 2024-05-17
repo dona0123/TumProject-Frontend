@@ -2,7 +2,12 @@ import React, { useState } from "react";
 import { Button, Grid, TextField, Typography } from "@mui/material";
 
 const AddShop = (props) => {
-  const [item, setItem] = useState({ title: "", userId: "", ingredient: "", crisp: "" });
+  const [item, setItem] = useState({
+    title: "",
+    userId: "",
+    ingredient: "",
+    crisp: "",
+  });
   const addItem = props.addItem;
 
   const onInputChange = (e) => {
@@ -20,7 +25,7 @@ const AddShop = (props) => {
       <Grid container spacing={2} alignItems="center" style={{ marginTop: 20 }}>
         <Grid item xs={12}>
           <Typography variant="h5" align="center" gutterBottom>
-          ― 제품 추가 ―
+            ― 제품 추가 ―
           </Typography>
         </Grid>
         <Grid item xs={12}>
