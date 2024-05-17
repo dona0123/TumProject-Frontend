@@ -2,6 +2,7 @@ import "./App.css";
 import React, { useState, useEffect } from "react";
 import { Container, Table, TableHead, TableBody, TableRow, TableCell, Paper } from "@mui/material";
 import AddShop from "./AddShop";
+import SearchShop from "./SearchShop";
 import { call } from "./ApiService";
 
 function App() {
@@ -17,6 +18,25 @@ function App() {
       console.error("Error fetching products:", error);
     });
   }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때 한 번만 실행
+
+  // 제품 추가 함수
+  const addItem = (newProduct) => {
+    call("/shop", "POST", newProduct).then((response) => {
+      // 추가된 제품을 현재 제품 리스트에 추가
+      setProducts((prevProducts) => [...prevProducts, response.data]);
+    }).catch((error) => {
+      console.error("Error adding product:", error);
+    });
+  };
+
+  // 제품 검색 함수 
+  const searchItem = (searchTerm) => {
+    call(`/shop/search?title=${searchTerm}`, "GET", null).then((response) => {
+      setProducts(response.data);
+    }).catch((error) => {
+      console.error("Error searching products:", error);
+    });
+  };
 
   return (
     <div className="App">
@@ -49,7 +69,8 @@ function App() {
             </TableBody>
           </Table>
         </Paper>
-        <AddShop /> {/* 추가 폼 */}
+        <AddShop addItem={addItem} /> {/* 추가 폼 */}
+        <SearchShop /> {/* 검색 폼 */}
       </Container>
     </div>
   );
