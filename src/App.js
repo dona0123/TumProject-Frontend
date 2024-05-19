@@ -56,7 +56,7 @@ function App() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {products.map((product) => (
+              {products?.map((product) => (
                 <TableRow>
                   <TableCell>{product.id}</TableCell>
                   <TableCell>{product.title}</TableCell>

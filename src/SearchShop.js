@@ -23,7 +23,7 @@ const SearchShop = ({ setProducts }) => {
     }
 
     // 검색 요청 보내기
-    fetch("http://localhost:8080/shop/search", {
+    fetch("http://localhost:8080/shop/title", {
       method: "POST", // POST 요청으로 변경
       headers: {
         "Content-Type": "application/json",
