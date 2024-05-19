@@ -31,27 +31,10 @@ function App() {
       });
   }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때 한 번만 실행
 
-  // 제품 추가 함수
-  const addItem = (newProduct) => {
-    call("/shop", "POST", newProduct)
-      .then((response) => {
-        // 추가된 제품을 현재 제품 리스트에 추가
-        setProducts((prevProducts) => [...prevProducts, response.data]);
-      })
-      .catch((error) => {
-        console.error("Error adding product:", error);
-      });
-  };
-
-  // 제품 검색 함수
-  const searchItem = (searchTerm) => {
-    call(`/shop/search?title=${searchTerm}`, "GET", null)
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error("Error searching products:", error);
-      });
+  //  제품 추가 함수 
+  const addItem = (item) => {
+    call("/shop", "POST", item)
+    .then((response) => setProducts(response.data)); 
   };
 
   return (
@@ -74,7 +57,7 @@ function App() {
             </TableHead>
             <TableBody>
               {products.map((product) => (
-                <TableRow key={product.id}>
+                <TableRow>
                   <TableCell>{product.id}</TableCell>
                   <TableCell>{product.title}</TableCell>
                   <TableCell>{product.userId}</TableCell>
@@ -86,7 +69,7 @@ function App() {
           </Table>
         </Paper>
         <br />
-        <AddShop addItem={addItem} /> {/* 추가 폼 */}
+        <AddShop addItem={addItem}/> {/* 추가 폼 */}
         <br />
         <SearchShop /> {/* 검색 폼 */}
         <br />

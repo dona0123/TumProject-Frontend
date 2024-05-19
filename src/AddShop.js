@@ -2,23 +2,25 @@ import React, { useState } from "react";
 import { Button, Grid, TextField, Typography } from "@mui/material";
 
 const AddShop = (props) => {
-  const [item, setItem] = useState({
-    title: "",
-    userId: "",
-    ingredient: "",
-    crisp: "",
+
+// 사용자의 입력을 저장할 오브젝트
+const [item, setItem] = useState({ title: "", userId: "", ingredient: "", crisp: ""});
+const addItem = props.addItem; // 부모가 전달해준 함수
+
+// 입력 값이 변경될 때 호출되는 함수
+const onInputChange = (e) => {
+  setItem({
+    ...item, // 기존 상태 객체의 속성들을 복사
+    [e.target.name]: e.target.value // 변경된 속성만 업데이트
   });
-  const addItem = props.addItem;
+};
 
-  const onInputChange = (e) => {
-    const { name, value } = e.target;
-    setItem({ ...item, [name]: value });
-  };
 
-  const onButtonClick = () => {
-    addItem(item);
-    setItem({ title: "", userId: "", ingredient: "", crisp: "" });
-  };
+// 추가 버튼 클릭 시 호출되는 함수
+const onButtonClick = (e) => {
+  addItem(item);
+  setItem({ title: "", userId: "", ingredient: "", crisp: "" }); // 입력 값 초기화하여 리렌더링 발생
+};
 
   return (
     <div>
@@ -81,6 +83,6 @@ const AddShop = (props) => {
       </Grid>
     </div>
   );
-};
+}
 
 export default AddShop;
