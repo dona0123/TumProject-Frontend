@@ -8,6 +8,12 @@ import {
   TableRow,
   TableCell,
   Paper,
+  AppBar,
+  Toolbar,
+  Tabs,
+  Tab,
+  Box,
+  Grid,
 } from "@mui/material";
 import AddShop from "./AddShop";
 import SearchShop from "./SearchShop";
@@ -18,6 +24,7 @@ import DeleteShop from "./DeleteShop";
 function App() {
   // 제품 리스트를 저장할 상태 변수
   const [products, setProducts] = useState([]);
+  const [activeTab, setActiveTab] = useState(0);
 
   // 컴포넌트가 마운트될 때 한 번만 실행되는 useEffect
   useEffect(() => {
@@ -31,10 +38,32 @@ function App() {
       });
   }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때 한 번만 실행
 
-  //  제품 추가 함수 
+  // 제품 추가 함수
   const addItem = (item) => {
     call("/shop", "POST", item)
-    .then((response) => setProducts(response.data)); 
+      .then((response) => setProducts(response.data))
+      .catch((error) => {
+        console.error("Error adding product:", error);
+      });
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
+  const renderComponent = () => {
+    switch (activeTab) {
+      case 0:
+        return <AddShop addItem={addItem} />;
+      case 1:
+        return <SearchShop />;
+      case 2:
+        return <EditShop />;
+      case 3:
+        return <DeleteShop />;
+      default:
+        return <AddShop addItem={addItem} />;
+    }
   };
 
   return (
@@ -44,6 +73,26 @@ function App() {
           <div className="title">고로케 판매 사이트</div>
           <hr className="hr-line" />
         </div>
+        <AppBar position="static" color="default">
+          <Toolbar>
+            <Grid container justifyContent="center">
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                textColor="inherit"
+                indicatorColor="secondary"
+              >
+                <Tab label="Add Shop" className="tab-item" />
+                <Tab label="Search Shop" className="tab-item" />
+                <Tab label="Edit Shop" className="tab-item" />
+                <Tab label="Delete Shop" className="tab-item" />
+              </Tabs>
+            </Grid>
+          </Toolbar>
+        </AppBar>
+        <Box p={3}>
+          {renderComponent()}
+        </Box>
         <Paper style={{ margin: 16 }}>
           <Table>
             <TableHead>
@@ -57,7 +106,7 @@ function App() {
             </TableHead>
             <TableBody>
               {products?.map((product) => (
-                <TableRow>
+                <TableRow key={product.id}>
                   <TableCell>{product.id}</TableCell>
                   <TableCell>{product.title}</TableCell>
                   <TableCell>{product.userId}</TableCell>
@@ -68,17 +117,6 @@ function App() {
             </TableBody>
           </Table>
         </Paper>
-        <br />
-        <AddShop addItem={addItem}/> {/* 추가 폼 */}
-        <br />
-        <SearchShop /> {/* 검색 폼 */}
-        <br />
-        <EditShop /> {/* 수정 폼 */}
-        <br />
-        <DeleteShop /> {/* 삭제 폼 */}
-        <br />
-        <br />
-        <br />
       </Container>
     </div>
   );
