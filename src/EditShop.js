@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import { Button, Grid, TextField, Typography, Checkbox, FormControlLabel } from "@mui/material";
 
 const EditShop = ({ setProducts }) => {
   const [item, setItem] = useState({
     title: "",
     userId: "",
     ingredient: "",
-    crisp: "",
+    crisp: false,
   });
 
   const onInputChange = (e) => {
-    const { name, value } = e.target;
-    setItem({ ...item, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setItem({ ...item, [name]: type === 'checkbox' ? checked : value });
   };
 
   const onSearchButtonClick = () => {
@@ -37,7 +37,7 @@ const EditShop = ({ setProducts }) => {
           setItem(product);
         } else {
           alert("검색된 제품이 없습니다.");
-          setItem({ title: "", userId: "", ingredient: "", crisp: "" });
+          setItem({ title: "", userId: "", ingredient: "", crisp: false });
         }
       })
       .catch((error) => {
@@ -82,7 +82,7 @@ const EditShop = ({ setProducts }) => {
           <span style={{ marginRight: 8 }}>Title:</span>
           <TextField
             name="title"
-            placeholder="수정하려는 제품의 Title를 입력하세요"
+            placeholder="수정하려는 제품의 Title을 입력하세요"
             fullWidth
             onChange={onInputChange}
             value={item.title}
@@ -109,18 +109,24 @@ const EditShop = ({ setProducts }) => {
           />
         </Grid>
         <Grid item xs={12}>
-          <span style={{ marginRight: 8 }}>Crisp:</span>
-          <TextField
-            name="crisp"
-            placeholder="Crisp"
-            fullWidth
-            onChange={onInputChange}
-            value={item.crisp}
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="crisp"
+                onChange={onInputChange}
+                checked={item.crisp}
+                sx={{
+                  color: "secondary.main",
+                  '&.Mui-checked': {
+                    color: "secondary.main",
+                  },
+                }}
+              />
+            }
+            label="Crisp"
           />
         </Grid>
         <Grid item xs={12} container spacing={2}>
-          {" "}
-          {/* 버튼들을 감싸는 Grid 컨테이너에 spacing 속성 추가 */}
           <Grid item xs={12}>
             <Button
               fullWidth
@@ -136,7 +142,7 @@ const EditShop = ({ setProducts }) => {
               fullWidth
               color="secondary"
               variant="outlined"
-              onClick={onEditButtonClick} // 이 버튼의 onClick 이벤트 핸들러는 나중에 수정이 필요할 수 있습니다.
+              onClick={onEditButtonClick}
             >
               제품 수정
             </Button>

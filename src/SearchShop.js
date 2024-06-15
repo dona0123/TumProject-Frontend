@@ -1,17 +1,22 @@
 import React, { useState } from "react";
-import { Button, Grid, TextField, Typography } from "@mui/material";
+import { Button, Grid, TextField, Typography, Checkbox, FormControlLabel } from "@mui/material";
 
 const SearchShop = ({ setProducts }) => {
   const [item, setItem] = useState({
     title: "",
     userId: "",
     ingredient: "",
-    crisp: "",
+    crisp: false,
   });
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
     setItem({ ...item, [name]: value });
+  };
+
+  const onCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setItem({ ...item, [name]: checked });
   };
 
   const onButtonClick = () => {
@@ -39,7 +44,7 @@ const SearchShop = ({ setProducts }) => {
         } else {
           // 검색된 데이터가 없을 때 처리
           alert("검색된 제품이 없습니다.");
-          setItem({ title: "", userId: "", ingredient: "", crisp: "" }); // 상태 초기화
+          setItem({ title: "", userId: "", ingredient: "", crisp: false }); // 상태 초기화
         }
       })
       .catch((error) => {
@@ -72,7 +77,7 @@ const SearchShop = ({ setProducts }) => {
             placeholder="User ID"
             fullWidth
             value={item.userId}
-            disabled
+            
           />
         </Grid>
         <Grid item xs={12}>
@@ -82,17 +87,26 @@ const SearchShop = ({ setProducts }) => {
             placeholder="Ingredient"
             fullWidth
             value={item.ingredient}
-            disabled
+            
           />
         </Grid>
         <Grid item xs={12}>
-          <span style={{ marginRight: 8 }}>Crisp:</span>
-          <TextField
-            name="crisp"
-            placeholder="Crisp"
-            fullWidth
-            value={item.crisp ? "Yes" : "No"}
-            disabled
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="crisp"
+                checked={item.crisp}
+                onChange={onCheckboxChange}
+                sx={{
+                  color: "secondary.main",
+                  '&.Mui-checked': {
+                    color: "secondary.main",
+                  },
+                }}
+
+              />
+            }
+            label="Crisp"
           />
         </Grid>
         <Grid item xs={12}>
