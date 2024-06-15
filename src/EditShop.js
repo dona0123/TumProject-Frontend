@@ -115,7 +115,7 @@ const EditShop = ({ setProducts }) => {
             placeholder="Crisp"
             fullWidth
             onChange={onInputChange}
-            value={item.crisp ? "Yes" : "No"}
+            value={item.crisp}
           />
         </Grid>
         <Grid item xs={12} container spacing={2}>
