@@ -46,7 +46,7 @@ const SearchShop = ({ onSearch, onUpdate }) => {
       <Grid container spacing={2} alignItems="center" style={{ marginTop: 20 }}>
         <Grid item xs={12}>
           <Typography variant="h5" align="center" gutterBottom>
-            ― 제품 검색 ―
+            ― 제품 수정 ―
           </Typography>
         </Grid>
         <Grid item xs={12}>

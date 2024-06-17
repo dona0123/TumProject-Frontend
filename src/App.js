@@ -14,12 +14,16 @@ import {
   Box,
   Grid,
   Typography,
-  Button
+  Button,
+  TextField,
+  Select,
+  MenuItem
 } from "@mui/material";
 import AddShop from "./AddShop";
 import SearchShop from "./SearchShop";
 import EditShop from "./EditShop";
 import DeleteShop from "./DeleteShop";
+import Favorites from "./Favorites"; // 즐겨찾기 컴포넌트 추가
 import { useNavigate } from "react-router-dom";
 import { call, signout } from "./ApiService"; // ApiService에서 call, signout 가져오기
 
@@ -27,6 +31,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
+  const [favorites, setFavorites] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +42,7 @@ function App() {
       navigate("/login");
       return;
     }
-  
+
     call("/shop", "GET", null)
       .then((response) => {
         setProducts(response.data);
@@ -45,6 +52,10 @@ function App() {
         console.error("Error fetching products:", error);
         setLoading(false);
       });
+
+    // 즐겨찾기 상태를 로컬 스토리지에서 불러오기
+    const storedFavorites = JSON.parse(localStorage.getItem("FAVORITES")) || [];
+    setFavorites(storedFavorites);
   }, [navigate]);
 
   // 검색 함수 정의
@@ -91,10 +102,9 @@ function App() {
       });
   };
 
-
-   // 삭제 함수 정의
-   const deleteProduct = (title) => {
-    return call("/shop/title", "POST", { title }) 
+  // 삭제 함수 정의
+  const deleteProduct = (title) => {
+    return call("/shop/title", "POST", { title })
       .then((response) => {
         if (response.data && response.data.length > 0) {
           const product = response.data[0];
@@ -114,9 +124,62 @@ function App() {
       });
   };
 
+  // 즐겨찾기 토글 함수 정의
+  const toggleFavorite = (productId) => {
+    setFavorites((prevFavorites) => {
+      const updatedFavorites = prevFavorites.includes(productId)
+        ? prevFavorites.filter((id) => id !== productId)
+        : [...prevFavorites, productId];
+
+      localStorage.setItem("FAVORITES", JSON.stringify(updatedFavorites)); // 로컬 스토리지에 즐겨찾기 저장
+      return updatedFavorites;
+    });
+  };
+
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
   };
+
+  const getFilteredAndSortedProducts = () => {
+    let filteredProducts = products;
+
+    if (filter) {
+      filteredProducts = products.filter((product) =>
+        product.title.toLowerCase().includes(filter.toLowerCase())
+      );
+    }
+
+    if (sortOrder === "asc") {
+      filteredProducts = filteredProducts.sort((a, b) => a.title.localeCompare(b.title));
+    } else {
+      filteredProducts = filteredProducts.sort((a, b) => b.title.localeCompare(a.title));
+    }
+
+    return filteredProducts;
+  };
+
+  const renderFilterAndSortUI = () => (
+    <Grid container spacing={2} justifyContent="flex-end" style={{ margin: '16px 0' }}>
+      <Grid item>
+        <TextField
+          label="Filter"
+          variant="outlined"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        />
+      </Grid>
+      <Grid item>
+        <Select
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+          variant="outlined"
+        >
+          <MenuItem value="asc">Ascending</MenuItem>
+          <MenuItem value="desc">Descending</MenuItem>
+        </Select>
+      </Grid>
+    </Grid>
+  );
 
   const renderComponent = () => {
     switch (activeTab) {
@@ -128,6 +191,8 @@ function App() {
         return <EditShop onUpdate={updateProduct} onSearch={searchProduct} />;
       case 3:
         return <DeleteShop onDelete={deleteProduct} />;
+      case 4:
+        return <Favorites products={products} favorites={favorites} />;
       default:
         return <AddShop addItem={addItem} />;
     }
@@ -170,6 +235,7 @@ function App() {
                     <Tab label="Search Shop" className="tab-item" />
                     <Tab label="Edit Shop" className="tab-item" />
                     <Tab label="Delete Shop" className="tab-item" />
+                    <Tab label="Favorites" className="tab-item" />
                   </Tabs>
                 </Grid>
               </Toolbar>
@@ -177,6 +243,7 @@ function App() {
             <Box p={3}>
               {renderComponent()}
             </Box>
+            {renderFilterAndSortUI()}
             <Paper style={{ margin: 16 }}>
               <Table>
                 <TableHead>
@@ -186,16 +253,22 @@ function App() {
                     <TableCell>User ID</TableCell>
                     <TableCell>Ingredient</TableCell>
                     <TableCell>Crisp</TableCell>
+                    <TableCell>Favorite</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {products?.map((product) => (
+                  {getFilteredAndSortedProducts().map((product) => (
                     <TableRow key={product.id}>
                       <TableCell>{product.id}</TableCell>
                       <TableCell>{product.title}</TableCell>
                       <TableCell>{product.userId}</TableCell>
                       <TableCell>{product.ingredient}</TableCell>
                       <TableCell>{product.crisp ? "Yes" : "No"}</TableCell>
+                      <TableCell>
+                        <Button onClick={() => toggleFavorite(product.id)}>
+                          {favorites.includes(product.id) ? "Unfavorite" : "Favorite"}
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
