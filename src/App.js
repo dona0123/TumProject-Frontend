@@ -46,7 +46,24 @@ function App() {
         setLoading(false);
       });
   }, [navigate]);
-  
+
+  // 검색 함수 정의
+  const searchProduct = (title) => {
+    return call("/shop/title", "POST", { title }) // title을 전달하여 검색 요청
+      .then((response) => {
+        if (response.data && response.data.length > 0) {
+          const product = response.data[0];
+          console.log("검색된 제품:", product);
+          return product; // 검색된 제품 정보 반환
+        } else {
+          throw new Error("검색된 제품이 없습니다.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error searching products:", error);
+        throw new Error("제품 검색 중 오류가 발생했습니다.");
+      });
+  };
 
   const addItem = (item) => {
     call("/shop", "POST", item)
@@ -65,7 +82,7 @@ function App() {
       case 0:
         return <AddShop addItem={addItem} />;
       case 1:
-        return <SearchShop />;
+        return <SearchShop onSearch={searchProduct} />; // 검색 함수를 props로 전달
       case 2:
         return <EditShop />;
       case 3:
@@ -80,10 +97,10 @@ function App() {
       <Toolbar>
         <Grid justifyContent="space-between" container>
           <Grid item>
-            <Typography variant="h6">오늘의 할일</Typography>
+            <Typography variant="h6">고로케 판매 사이트</Typography>
           </Grid>
           <Grid item>
-            <Button color="inherit" raised onClick={signout}>
+            <Button color="inherit" onClick={signout}>
               로그아웃
             </Button>
           </Grid>
@@ -98,10 +115,7 @@ function App() {
       <Container maxWidth="md">
         <div className="App">
           <Container maxWidth="md">
-            <div className="center-div">
-              <div className="title">고로케 판매 사이트</div>
-              <hr className="hr-line" />
-            </div>
+            <div style={{ height: '20px' }}></div>
             <AppBar position="static" color="default">
               <Toolbar>
                 <Grid container justifyContent="center">
