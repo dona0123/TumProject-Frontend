@@ -18,10 +18,10 @@ import {
 } from "@mui/material";
 import AddShop from "./AddShop";
 import SearchShop from "./SearchShop";
-import { call, signout } from "./ApiService";
 import EditShop from "./EditShop";
 import DeleteShop from "./DeleteShop";
 import { useNavigate } from "react-router-dom";
+import { call, signout } from "./ApiService"; // ApiService에서 call, signout 가져오기
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -49,7 +49,7 @@ function App() {
 
   // 검색 함수 정의
   const searchProduct = (title) => {
-    return call("/shop/title", "POST", { title }) // title을 전달하여 검색 요청
+    return call("/shop/title", "POST", { title })
       .then((response) => {
         if (response.data && response.data.length > 0) {
           const product = response.data[0];
@@ -83,11 +83,33 @@ function App() {
   const updateProduct = (updatedProduct) => {
     return call("/shop", "PUT", updatedProduct)
       .then((response) => {
-        // 업데이트된 상품 정보 처리
         console.log("상품이 성공적으로 수정되었습니다.", response.data);
       })
       .catch((error) => {
         console.error("Error updating product:", error);
+        throw error;
+      });
+  };
+
+
+   // 삭제 함수 정의
+   const deleteProduct = (title) => {
+    return call("/shop/title", "POST", { title }) 
+      .then((response) => {
+        if (response.data && response.data.length > 0) {
+          const product = response.data[0];
+          // 검색된 제품이 있으면 해당 제품을 삭제
+          return call(`/shop`, "DELETE", { id: product.id });
+        } else {
+          // 검색된 제품이 없을 때
+          throw new Error("Product not found");
+        }
+      })
+      .then(() => {
+        alert("제품이 삭제되었습니다.");
+      })
+      .catch((error) => {
+        console.error("Error deleting product:", error);
         throw error;
       });
   };
@@ -105,7 +127,7 @@ function App() {
       case 2:
         return <EditShop onUpdate={updateProduct} onSearch={searchProduct} />;
       case 3:
-        return <DeleteShop />;
+        return <DeleteShop onDelete={deleteProduct} />;
       default:
         return <AddShop addItem={addItem} />;
     }
