@@ -1,4 +1,3 @@
-import "./App.css";
 import React, { useState, useEffect } from "react";
 import {
   Container,
@@ -14,31 +13,41 @@ import {
   Tab,
   Box,
   Grid,
+  Typography,
+  Button
 } from "@mui/material";
 import AddShop from "./AddShop";
 import SearchShop from "./SearchShop";
-import { call } from "./ApiService";
+import { call, signout } from "./ApiService";
 import EditShop from "./EditShop";
 import DeleteShop from "./DeleteShop";
+import { useNavigate } from "react-router-dom";
 
 function App() {
-  // 제품 리스트를 저장할 상태 변수
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
+  const navigate = useNavigate();
 
-  // 컴포넌트가 마운트될 때 한 번만 실행되는 useEffect
   useEffect(() => {
-    // 백엔드 서버로부터 제품 리스트를 가져와 상태 변수에 저장
+    const accessToken = localStorage.getItem("ACCESS_TOKEN");
+    if (!accessToken) {
+      navigate("/login");
+      return;
+    }
+  
     call("/shop", "GET", null)
       .then((response) => {
-        setProducts(response.data); // 백엔드에서 받은 데이터를 상태 변수에 저장
+        setProducts(response.data);
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching products:", error);
+        setLoading(false);
       });
-  }, []); // 빈 배열을 전달하여 컴포넌트가 마운트될 때 한 번만 실행
+  }, [navigate]);
+  
 
-  // 제품 추가 함수
   const addItem = (item) => {
     call("/shop", "POST", item)
       .then((response) => setProducts(response.data))
@@ -66,60 +75,91 @@ function App() {
     }
   };
 
-  return (
-    <div className="App">
+  let navigationBar = (
+    <AppBar position="static">
+      <Toolbar>
+        <Grid justifyContent="space-between" container>
+          <Grid item>
+            <Typography variant="h6">오늘의 할일</Typography>
+          </Grid>
+          <Grid item>
+            <Button color="inherit" raised onClick={signout}>
+              로그아웃
+            </Button>
+          </Grid>
+        </Grid>
+      </Toolbar>
+    </AppBar>
+  );
+
+  let todoListPage = (
+    <div>
+      {navigationBar}
       <Container maxWidth="md">
-        <div className="center-div">
-          <div className="title">고로케 판매 사이트</div>
-          <hr className="hr-line" />
+        <div className="App">
+          <Container maxWidth="md">
+            <div className="center-div">
+              <div className="title">고로케 판매 사이트</div>
+              <hr className="hr-line" />
+            </div>
+            <AppBar position="static" color="default">
+              <Toolbar>
+                <Grid container justifyContent="center">
+                  <Tabs
+                    value={activeTab}
+                    onChange={handleTabChange}
+                    textColor="inherit"
+                    indicatorColor="secondary"
+                  >
+                    <Tab label="Add Shop" className="tab-item" />
+                    <Tab label="Search Shop" className="tab-item" />
+                    <Tab label="Edit Shop" className="tab-item" />
+                    <Tab label="Delete Shop" className="tab-item" />
+                  </Tabs>
+                </Grid>
+              </Toolbar>
+            </AppBar>
+            <Box p={3}>
+              {renderComponent()}
+            </Box>
+            <Paper style={{ margin: 16 }}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Title</TableCell>
+                    <TableCell>User ID</TableCell>
+                    <TableCell>Ingredient</TableCell>
+                    <TableCell>Crisp</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {products?.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell>{product.id}</TableCell>
+                      <TableCell>{product.title}</TableCell>
+                      <TableCell>{product.userId}</TableCell>
+                      <TableCell>{product.ingredient}</TableCell>
+                      <TableCell>{product.crisp ? "Yes" : "No"}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Paper>
+          </Container>
         </div>
-        <AppBar position="static" color="default">
-          <Toolbar>
-            <Grid container justifyContent="center">
-              <Tabs
-                value={activeTab}
-                onChange={handleTabChange}
-                textColor="inherit"
-                indicatorColor="secondary"
-              >
-                <Tab label="Add Shop" className="tab-item" />
-                <Tab label="Search Shop" className="tab-item" />
-                <Tab label="Edit Shop" className="tab-item" />
-                <Tab label="Delete Shop" className="tab-item" />
-              </Tabs>
-            </Grid>
-          </Toolbar>
-        </AppBar>
-        <Box p={3}>
-          {renderComponent()}
-        </Box>
-        <Paper style={{ margin: 16 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>User ID</TableCell>
-                <TableCell>Ingredient</TableCell>
-                <TableCell>Crisp</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {products?.map((product) => (
-                <TableRow key={product.id}>
-                  <TableCell>{product.id}</TableCell>
-                  <TableCell>{product.title}</TableCell>
-                  <TableCell>{product.userId}</TableCell>
-                  <TableCell>{product.ingredient}</TableCell>
-                  <TableCell>{product.crisp ? "Yes" : "No"}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
       </Container>
     </div>
   );
+
+  let loadingPage = <h1> 로딩중.. </h1>;
+  let content = loadingPage;
+
+  if (!loading) {
+    content = todoListPage;
+  }
+
+  return <div className="App">{content}</div>;
 }
 
 export default App;
