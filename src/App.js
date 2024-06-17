@@ -54,22 +54,41 @@ function App() {
         if (response.data && response.data.length > 0) {
           const product = response.data[0];
           console.log("검색된 제품:", product);
-          return product; // 검색된 제품 정보 반환
+          return product;
         } else {
-          throw new Error("검색된 제품이 없습니다.");
+          alert("검색된 제품이 없습니다.");
+          return null;
         }
       })
       .catch((error) => {
         console.error("Error searching products:", error);
-        throw new Error("제품 검색 중 오류가 발생했습니다.");
+        throw error;
       });
   };
 
-  const addItem = (item) => {
-    call("/shop", "POST", item)
-      .then((response) => setProducts(response.data))
+  // 추가 함수 정의
+  const addItem = (newItem) => {
+    return call("/shop", "POST", newItem)
+      .then((response) => {
+        setProducts(response.data);
+        console.log("상품이 추가되었습니다.", response.data);
+      })
       .catch((error) => {
         console.error("Error adding product:", error);
+        throw error;
+      });
+  };
+
+  // 수정 함수 정의
+  const updateProduct = (updatedProduct) => {
+    return call("/shop", "PUT", updatedProduct)
+      .then((response) => {
+        // 업데이트된 상품 정보 처리
+        console.log("상품이 성공적으로 수정되었습니다.", response.data);
+      })
+      .catch((error) => {
+        console.error("Error updating product:", error);
+        throw error;
       });
   };
 
@@ -82,9 +101,9 @@ function App() {
       case 0:
         return <AddShop addItem={addItem} />;
       case 1:
-        return <SearchShop onSearch={searchProduct} />; // 검색 함수를 props로 전달
+        return <SearchShop onSearch={searchProduct} />;
       case 2:
-        return <EditShop />;
+        return <EditShop onUpdate={updateProduct} onSearch={searchProduct} />;
       case 3:
         return <DeleteShop />;
       default:
@@ -165,7 +184,6 @@ function App() {
       </Container>
     </div>
   );
-
   let loadingPage = <h1> 로딩중.. </h1>;
   let content = loadingPage;
 

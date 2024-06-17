@@ -1,73 +1,44 @@
 import React, { useState } from "react";
 import { Button, Grid, TextField, Typography, Checkbox, FormControlLabel } from "@mui/material";
 
-const EditShop = ({ setProducts }) => {
+const SearchShop = ({ onSearch, onUpdate }) => {
   const [item, setItem] = useState({
     title: "",
     userId: "",
     ingredient: "",
     crisp: false,
   });
+  const [searchedProduct, setSearchedProduct] = useState(null); // 검색된 제품 정보 상태
 
   const onInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setItem({ ...item, [name]: type === 'checkbox' ? checked : value });
+    const { name, value } = e.target;
+    setItem({ ...item, [name]: value });
   };
 
-  const onSearchButtonClick = () => {
-    // 검색어가 비어있는지 확인
-    if (!item.title) {
-      alert("검색어를 입력하세요.");
-      console.error("검색어를 입력하세요.");
-      return;
-    }
+  const onCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setItem({ ...item, [name]: checked });
+  };
 
-    // 검색 요청 보내기
-    fetch("http://localhost:8080/shop/title", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ title: item.title }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.data && data.data.length > 0) {
-          const product = data.data[0];
-          setItem(product);
-        } else {
-          alert("검색된 제품이 없습니다.");
-          setItem({ title: "", userId: "", ingredient: "", crisp: false });
-        }
-      })
-      .catch((error) => {
-        console.error("Error searching products:", error);
-      });
+  const onSearchButtonClick = async () => {
+    try {
+      // 검색 함수 호출
+      const product = await onSearch(item.title);
+      setSearchedProduct(product); // 검색된 제품 정보 설정
+    } catch (error) {
+      console.error("Error searching products:", error);
+    }
   };
 
   const onEditButtonClick = () => {
     // 수정 요청 보내기
-    fetch("http://localhost:8080/shop", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title: item.title,
-        userId: item.userId,
-        ingredient: item.ingredient,
-        crisp: item.crisp,
-        id: item.id,
-      }), // 필드 이름을 일치시킴
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // 여기서는 예시로만 처리; 실제 응답 데이터에 따라 조정 필요
-        alert("제품이 수정되었습니다.");
-      })
-      .catch((error) => {
-        console.error("Error updating product:", error);
-      });
+    onUpdate({
+      title: item.title,
+      userId: item.userId,
+      ingredient: item.ingredient,
+      crisp: item.crisp,
+      id: searchedProduct.id, // 검색된 제품의 ID 전달
+    }); 
   };
 
   return (
@@ -75,14 +46,14 @@ const EditShop = ({ setProducts }) => {
       <Grid container spacing={2} alignItems="center" style={{ marginTop: 20 }}>
         <Grid item xs={12}>
           <Typography variant="h5" align="center" gutterBottom>
-            ― 제품 수정 ―
+            ― 제품 검색 ―
           </Typography>
         </Grid>
         <Grid item xs={12}>
           <span style={{ marginRight: 8 }}>Title:</span>
           <TextField
             name="title"
-            placeholder="수정하려는 제품의 Title을 입력하세요"
+            placeholder="수정하려는 제품의 Title를 입력하세요"
             fullWidth
             onChange={onInputChange}
             value={item.title}
@@ -94,8 +65,8 @@ const EditShop = ({ setProducts }) => {
             name="userId"
             placeholder="User ID"
             fullWidth
+            value={searchedProduct?.userId || ""} 
             onChange={onInputChange}
-            value={item.userId}
           />
         </Grid>
         <Grid item xs={12}>
@@ -104,8 +75,8 @@ const EditShop = ({ setProducts }) => {
             name="ingredient"
             placeholder="Ingredient"
             fullWidth
+            value={searchedProduct?.ingredient || ""} 
             onChange={onInputChange}
-            value={item.ingredient}
           />
         </Grid>
         <Grid item xs={12}>
@@ -113,8 +84,8 @@ const EditShop = ({ setProducts }) => {
             control={
               <Checkbox
                 name="crisp"
-                onChange={onInputChange}
-                checked={item.crisp}
+                checked={searchedProduct?.crisp || false}
+                onChange={onCheckboxChange}
                 sx={{
                   color: "secondary.main",
                   '&.Mui-checked': {
@@ -126,31 +97,29 @@ const EditShop = ({ setProducts }) => {
             label="Crisp"
           />
         </Grid>
-        <Grid item xs={12} container spacing={2}>
-          <Grid item xs={12}>
-            <Button
-              fullWidth
-              color="secondary"
-              variant="outlined"
-              onClick={onSearchButtonClick}
-            >
-              제품 검색
-            </Button>
-          </Grid>
-          <Grid item xs={12}>
-            <Button
-              fullWidth
-              color="secondary"
-              variant="outlined"
-              onClick={onEditButtonClick}
-            >
-              제품 수정
-            </Button>
-          </Grid>
+        <Grid item xs={12}>
+          <Button
+            fullWidth
+            color="secondary"
+            variant="outlined"
+            onClick={onSearchButtonClick}
+          >
+            제품 검색
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            fullWidth
+            color="secondary"
+            variant="outlined"
+            onClick={onEditButtonClick}
+          >
+            제품 수정
+          </Button>
         </Grid>
       </Grid>
     </div>
   );
 };
 
-export default EditShop;
+export default SearchShop;
